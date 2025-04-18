@@ -1,0 +1,52 @@
+package org.dd_lgp.com.tutospring.service;
+
+
+import lombok.RequiredArgsConstructor;
+import org.dd_lgp.com.tutospring.dao.mapper.DishSoldMapper;
+import org.dd_lgp.com.tutospring.dao.operations.DishCrudOperations;
+import org.dd_lgp.com.tutospring.endpoint.mapper.DishRestMapper;
+import org.dd_lgp.com.tutospring.endpoint.mapper.DishSoldRestMapper;
+import org.dd_lgp.com.tutospring.endpoint.rest.DishRest;
+import org.dd_lgp.com.tutospring.endpoint.rest.DishSoldRest;
+import org.dd_lgp.com.tutospring.model.CreateDishIngredient;
+import org.dd_lgp.com.tutospring.model.Dish;
+import org.dd_lgp.com.tutospring.model.DishIngredient;
+import org.dd_lgp.com.tutospring.model.DishSold;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class DishService {
+    private final DishRestMapper dishRestMapper;
+    private final DishCrudOperations dishCrudOperations;
+    private final DishSoldRestMapper dishSoldRestMapper;
+
+
+    public ResponseEntity<Object> getAllDishes(int page, int pageSize) {
+        if (page < 1 || pageSize < 1) {
+            return new ResponseEntity<>(page + "/" + pageSize + " must be a positive number", HttpStatus.BAD_REQUEST);
+        }
+        List<Dish> dishList = dishCrudOperations.getAll(page, pageSize);
+
+        // List<DishRest> dishRests = dishList.stream().map(dishRestMapper::toRest).toList();
+        return ResponseEntity.ok().body(dishList);
+    }
+
+    public ResponseEntity<Object> insertDishIngredients(Long idDish, List<CreateDishIngredient> entities) {
+        Dish dish = dishCrudOperations.insertDishIngredient(idDish, entities);
+
+        // List<DishRest> dishRests = dishList.stream().map(dishRestMapper::toRest).toList();
+        return ResponseEntity.ok().body(dish);
+    }
+
+    public ResponseEntity<Object> getBestSales(Long x) {
+        List<DishSold> dishSolds = dishCrudOperations.getBestSales(x);
+        List<DishSoldRest> dishSoldRests = dishSolds.stream().map(dishSoldRestMapper::toRest).toList();
+
+        return ResponseEntity.ok().body(dishSoldRests);
+    }
+}

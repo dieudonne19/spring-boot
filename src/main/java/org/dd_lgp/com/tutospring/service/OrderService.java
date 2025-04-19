@@ -18,6 +18,11 @@ public class OrderService {
     private final OrderCrudOperations orderCrudOperations;
     private final OrderRestMapper orderRestMapper;
 
+    public ResponseEntity<Object> getAllOrders(int page, int pageSize){
+        List<Order> orders = orderCrudOperations.getAll(page, pageSize);
+        List<OrderRest> ordersRest = orders.stream().map(orderRestMapper).toList();
+        return ResponseEntity.ok().body(ordersRest);
+    }
 
     public ResponseEntity<Object> createAllOrders(List<Order> entities) {
         if (entities.isEmpty()) {
@@ -34,7 +39,6 @@ public class OrderService {
         }
         Order order = orderCrudOperations.getOrderByReference(reference);
         OrderRest orderRest = orderRestMapper.apply(order);
-        System.out.println(orderRest.getActualStatus());
         return ResponseEntity.ok().body(orderRest);
     }
 
@@ -55,7 +59,7 @@ public class OrderService {
             return new ResponseEntity<>("Reference must be defined", HttpStatus.BAD_REQUEST);
         }
         Order order = orderCrudOperations.createOrderByReference(reference);
-        // OrderRest orderRest = orderRestMapper.apply(order);
+        OrderRest orderRest = orderRestMapper.apply(order);
         return ResponseEntity.ok().body(order);
     }
 }

@@ -27,20 +27,28 @@ public class OrderCrudOperations implements CrudOperations<Order> {
 
     @Override
     public List<Order> getAll(int page, int size) {
+        List<Order> orders = new ArrayList<>();
         if (page < 1) {
             throw new IllegalArgumentException("page must be higher than " + page);
         }
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement("select o.id, o.reference, o.destination, o.creation_date_time from order o "
-                     + "join dish_order do on do.id_order = o.id limit ? offset ?")) {
-            statement.setInt(1, page);
-            statement.setInt(2, page * (size - 1));
+             PreparedStatement statement = connection.prepareStatement("select o.id, o.reference, o.destination, o.creation_date_time from \"order\" o"
+                     + " limit ? offset ?")) {
+            statement.setInt(1, size);
+            statement.setInt(2, size * (page - 1));
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return null;
+                while (resultSet.next()) {
+                    Order order = orderMapper.apply(resultSet);
+
+                    List<OrderStatus> orderStatuses = orderStatusOperations.findAllByOrderId(order.getId());
+                    List<DishOrder> dishOrders = dishOrderCrudOperations.findAllByOrderId(order.getId());
+                    order.setOrderStatuses(orderStatuses);
+                    order.setDishOrders(dishOrders);
+
+                    orders.add(order);
                 }
+                return orders;
             }
-            throw new RuntimeException("Not finished");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -13,15 +13,23 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class OrderRestMapper implements Function<Order, OrderRest> {
     private final DishOrderRestMapper dishOrderRestMapper;
+
     @Override
     public OrderRest apply(Order order) {
         OrderRest orderRest = new OrderRest();
-        orderRest.setOrderStatuses(order.getOrderStatuses());
+
         orderRest.setId(order.getId());
+        orderRest.setReference(order.getReference());
         orderRest.setDestination(order.getDestination());
         orderRest.setCreationDatetime(order.getCreationDatetime());
-        orderRest.setReference(order.getReference());
-        orderRest.setDishOrders(order.getDishOrders().stream().map(dishOrderRestMapper::toRest).toList());
+
+        if (order.getOrderStatuses() != null) {
+            orderRest.setOrderStatuses(order.getOrderStatuses());
+        }
+
+        if (order.getDishOrders() != null) {
+            orderRest.setDishOrders(order.getDishOrders().stream().map(dishOrderRestMapper::toRest).toList());
+        }
 
         return orderRest;
     }

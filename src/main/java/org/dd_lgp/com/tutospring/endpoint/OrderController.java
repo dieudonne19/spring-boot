@@ -16,6 +16,11 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
 
+    @GetMapping("")
+    public Object getAllOrders(@RequestParam(name = "page") Integer page, @RequestParam(name = "pageSize") Integer pageSize){
+        return orderService.getAllOrders(page, pageSize);
+    }
+
     @PostMapping("")
     public Object createManyOrders(@RequestBody List<Order> orders) {
         return orderService.createAllOrders(orders);

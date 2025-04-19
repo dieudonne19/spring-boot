@@ -33,6 +33,9 @@ public class OrderRest {
     private LocalDateTime creationDatetime;
 
     public OrderProcessStatus getActualStatus() {
+        if (this.dishOrders == null) {
+            return this.orderStatuses.getLast().getOrderProcessStatus();
+        }
         boolean isAllCreated = this.dishOrders.stream().allMatch(dishOrderRest -> dishOrderRest.getActualOrderStatus().equals(OrderProcessStatus.CREATED));
         boolean isAllConfirmed = this.dishOrders.stream().allMatch(dishOrderRest -> dishOrderRest.getActualOrderStatus().equals(OrderProcessStatus.CONFIRMED));
         boolean isAllPreparing = this.dishOrders.stream().allMatch(dishOrderRest -> dishOrderRest.getActualOrderStatus().equals(OrderProcessStatus.IN_PROGRESS));

@@ -23,7 +23,25 @@ public class OrderStatusOperations implements CrudOperations<OrderStatus> {
 
     @Override
     public List<OrderStatus> getAll(int page, int size) {
-        return List.of();
+        List<OrderStatus> orderStatuses = new ArrayList<>();
+        if (page < 1) {
+            throw new IllegalArgumentException("page must be higher than " + page);
+        }
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select os.id, os.order_id, os.order_status, os.datetime from order_status os"
+                     + " limit ? offset ?")) {
+            statement.setInt(1, page);
+            statement.setInt(2, page * (size - 1));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    OrderStatus orderStatus = orderStatusMapper.apply(resultSet);
+                    orderStatuses.add(orderStatus);
+                }
+                return orderStatuses;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

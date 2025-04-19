@@ -25,7 +25,28 @@ public class DishOrderCrudOperations implements CrudOperations<DishOrder> {
 
     @Override
     public List<DishOrder> getAll(int page, int size) {
-        return List.of();
+        List<DishOrder> dishOrders = new ArrayList<>();
+        if (page < 1) {
+            throw new IllegalArgumentException("page must be higher than " + page);
+        }
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select d_o.id, d_o.id_dish, d_o.id_order, d_o.dish_quantity from dish_order d_o"
+                     + " limit ? offset ?")) {
+            statement.setInt(1, page);
+            statement.setInt(2, page * (size - 1));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    DishOrder dishOrder = dishOrderMapper.apply(resultSet);
+                    List<DishOrderStatus> dishOrderStatuses = dishOrderStatusOperations.findAllByDishOrderId(dishOrder.getId());
+                    dishOrder.setDishOrderStatuses(dishOrderStatuses);
+
+                    dishOrders.add(dishOrder);
+                }
+                return dishOrders;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

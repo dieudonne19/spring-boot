@@ -26,6 +26,11 @@ public class OrderController {
         return orderService.getOrderByReference(reference);
     }
 
+    @PostMapping("/{reference}")
+    public Object createOrderByReference(@PathVariable(name = "reference") String reference){
+        return orderService.createOrderByReference(reference);
+    }
+
     @PutMapping("/{reference}/dishes/{dishId}")
     public Object updateDishStatus(@PathVariable(name = "reference") String reference, @PathVariable(name = "dishId") Long dishId, @RequestBody UpdateDishOrderStatus entity) {
         return orderService.updateDishesStatus(reference, dishId, entity);

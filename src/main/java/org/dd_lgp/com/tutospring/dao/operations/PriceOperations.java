@@ -5,12 +5,10 @@ import lombok.SneakyThrows;
 import org.dd_lgp.com.tutospring.dao.DataSource;
 import org.dd_lgp.com.tutospring.dao.PostgresNextReference;
 import org.dd_lgp.com.tutospring.dao.mapper.PriceMapper;
-import org.dd_lgp.com.tutospring.model.Ingredient;
 import org.dd_lgp.com.tutospring.model.Price;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +18,25 @@ public class PriceOperations implements CrudOperations<Price> {
     private final DataSource dataSource;
     private final PriceMapper priceMapper;
     final PostgresNextReference postgresNextReference = new PostgresNextReference();
-    /*
-    public PriceRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-     */
 
     @Override
     public List<Price> getAll(int page, int size) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        List<Price> prices = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("select p.id, p.amount, p.date_value, p.id_ingredient from price p limit ? offset ?")) {
+            statement.setInt(1, size);
+            statement.setInt(2, size * (page - 1));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Price price = priceMapper.apply(resultSet);
+                    // price have an ingredient by id_ingredient but doing this can create a cycle from here :(
+                    prices.add(price);
+                }
+            }
+            return prices;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

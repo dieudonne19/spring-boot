@@ -73,7 +73,7 @@ public class OrderCrudOperations implements CrudOperations<Order> {
                      + " returning id, reference, destination, creation_date_time")) {
             entitiesToSave.forEach(entity -> {
                 try {
-                    Long id = entity.getId() == null ? postgresNextReference.nextID("\"order\"", connection) : entity.getId();
+                    long id = entity.getId() == null ? postgresNextReference.nextID("\"order\"", connection) : entity.getId();
                     statement.setLong(1, id);
                     statement.setString(2, entity.getReference());
                     statement.setString(3, entity.getDestination());
@@ -141,6 +141,40 @@ public class OrderCrudOperations implements CrudOperations<Order> {
                 PreparedStatement statement = connection.prepareStatement("select o.id, o.reference, o.destination, o.creation_date_time from \"order\" o where reference = ?")
         ) {
             statement.setString(1, reference);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    order = orderMapper.apply(rs);
+                    List<OrderStatus> orderStatuses = orderStatusOperations.findAllByOrderId(order.getId());
+                    List<DishOrder> dishOrders = dishOrderCrudOperations.findAllByOrderId(order.getId());
+                    order.setOrderStatuses(orderStatuses);
+                    order.setDishOrders(dishOrders);
+                }
+            } catch (SQLException e) {
+                throw new ServerException(e);
+            }
+        }
+        return order;
+    }
+
+    @SneakyThrows
+    public Order createOrderByReference(String reference) {
+        Order order = null;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement("insert into \"order\" (id, reference, destination, creation_date_time) values (?, ?, ?, ?)"
+                        + " on conflict (id) do nothing"
+                        + " returning id, reference, destination, creation_date_time")
+        ) {
+            Order existingOrder = this.getOrderByReference(reference);
+            if (existingOrder != null) {
+                throw new ServerException("Order with reference " + reference + " already exists");
+            }
+
+            long id = postgresNextReference.nextID("\"order\"", connection);
+            statement.setLong(1, id);
+            statement.setString(2, reference);
+            statement.setString(3, "...");
+            statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     order = orderMapper.apply(rs);

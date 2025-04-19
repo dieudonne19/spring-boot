@@ -14,6 +14,8 @@ import org.dd_lgp.com.tutospring.model.Dish;
 @Setter
 public class DishSoldRest {
     @JsonIgnore
+    private String salesPoint;
+    @JsonIgnore
     private Dish dish;
     private Double quantitySold;
     @JsonIgnore

@@ -49,4 +49,13 @@ public class OrderService {
         OrderRest orderRest = orderRestMapper.apply(order);
         return ResponseEntity.ok().body(orderRest);
     }
+
+    public ResponseEntity<Object> createOrderByReference(String reference){
+        if (reference == null) {
+            return new ResponseEntity<>("Reference must be defined", HttpStatus.BAD_REQUEST);
+        }
+        Order order = orderCrudOperations.createOrderByReference(reference);
+        // OrderRest orderRest = orderRestMapper.apply(order);
+        return ResponseEntity.ok().body(order);
+    }
 }

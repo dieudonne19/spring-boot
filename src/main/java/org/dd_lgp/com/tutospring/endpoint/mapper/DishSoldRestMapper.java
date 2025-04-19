@@ -22,10 +22,10 @@ public class DishSoldRestMapper implements Function<DishSold, DishSoldRest> {
     @SneakyThrows
     public DishSoldRest toRest(DishSold dishSold){
         DishSoldRest dishSoldRest = new DishSoldRest();
+        dishSoldRest.setSalesPoint(dishSold.getSalesPoint());
         dishSoldRest.setQuantitySold(dishSold.getQuantitySold());
         dishSoldRest.setTotalAmount(dishSold.getTotalAmount());
         dishSoldRest.setDish(dishSold.getDish());
-        // dishSoldRest.setSalesPoint(dishSold.getSalesPoint());
 
         return dishSoldRest;
     }

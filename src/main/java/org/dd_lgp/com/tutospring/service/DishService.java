@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.dd_lgp.com.tutospring.dao.operations.DishCrudOperations;
 import org.dd_lgp.com.tutospring.endpoint.mapper.DishRestMapper;
 import org.dd_lgp.com.tutospring.endpoint.mapper.DishSoldRestMapper;
+import org.dd_lgp.com.tutospring.endpoint.mapper.DishSoldRestWithSalesPointMapper;
 import org.dd_lgp.com.tutospring.endpoint.rest.DishSoldRest;
+import org.dd_lgp.com.tutospring.endpoint.rest.DishSoldRestWithSalesPoint;
 import org.dd_lgp.com.tutospring.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ public class DishService {
     private final DishRestMapper dishRestMapper;
     private final DishCrudOperations dishCrudOperations;
     private final DishSoldRestMapper dishSoldRestMapper;
+    private final DishSoldRestWithSalesPointMapper dishSoldRestWithSalesPointMapper;
 
 
     public ResponseEntity<Object> getAllDishes(int page, int pageSize) {
@@ -43,5 +46,12 @@ public class DishService {
         List<DishSoldRest> dishSoldRests = dishSolds.stream().map(dishSoldRestMapper::toRest).toList();
 
         return ResponseEntity.ok().body(dishSoldRests);
+    }
+
+    public ResponseEntity<Object> getSalesWithSalesPoint() {
+        List<DishSold> dishSolds = dishCrudOperations.getSales();
+        List<DishSoldRestWithSalesPoint> dishSoldRestWithSalesPoint = dishSolds.stream().map(dishSoldRestWithSalesPointMapper::toRest).toList();
+
+        return ResponseEntity.ok().body(dishSoldRestWithSalesPoint);
     }
 }

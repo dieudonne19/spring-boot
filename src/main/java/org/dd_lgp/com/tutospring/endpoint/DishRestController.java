@@ -28,4 +28,9 @@ public class DishRestController {
     public Object getSales() {
         return service.getSales();
     }
+
+    @GetMapping("salesPoint/sales")
+    public Object getSalesWithSalesPoint(){
+        return service.getSalesWithSalesPoint();
+    }
 }

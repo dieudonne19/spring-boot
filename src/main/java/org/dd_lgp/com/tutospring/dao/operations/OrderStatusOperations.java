@@ -79,9 +79,30 @@ public class OrderStatusOperations implements CrudOperations<OrderStatus> {
                         orderStatuses.add(savedOrderStatus);
                     }
                 }
-
             }
             return orderStatuses;
         }
+    }
+
+    @SneakyThrows
+    public List<OrderStatus> getOrderStatusByDishOrderId(String dishOrderId) {
+        List<OrderStatus> orderStatuses = new ArrayList<OrderStatus>();
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement statement = conn.prepareStatement("SELECT id, dish_order_id, order_status, datetime FROM dish_order_status WHERE dish_order_id=?");
+        ) {
+            statement.setString(1, dishOrderId);
+            try (
+                    ResultSet rs = statement.executeQuery();
+            ) {
+
+                while (rs.next()) {
+
+                    orderStatuses.add(orderStatusMapper.apply(rs));
+                }
+            }
+
+        }
+        return orderStatuses;
     }
 }

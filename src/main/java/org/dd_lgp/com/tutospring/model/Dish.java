@@ -21,6 +21,7 @@ public class Dish {
 
     @JsonProperty("ingredients")
     private List<DishIngredient> dishIngredients;
+
     @JsonProperty("actualPrice")
     private Double price;
 

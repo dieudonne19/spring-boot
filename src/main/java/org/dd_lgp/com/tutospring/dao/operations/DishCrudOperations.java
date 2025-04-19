@@ -43,12 +43,17 @@ public class DishCrudOperations implements CrudOperations<Dish> {
         }
     }
 
-    public List<DishSold> getBestSales(Long x) {
+    public List<DishSold> getSales() {
         List<DishSold> dishSolds = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT d_o.id_dish as dish_identifier, d.name, sum(d_o.dish_quantity) as quantity_sold FROM dish_order d_o join public.dish_order_status dos on d_o.id = dos.dish_order_id join public.dish d on d_o.id_dish = d.id where dos.order_status = 'DELIVERED' group by id_dish, d.name order by quantity_sold desc limit ?")) {
-            statement.setLong(1, x);
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT sum(d.price * d_o.dish_quantity) as total_amount, d_o.id_dish as dish_identifier, " +
+                             "d.name, sum(d_o.dish_quantity) as quantity_sold FROM dish_order d_o " +
+                             "join public.dish_order_status dos on d_o.id = dos.dish_order_id " +
+                             "join public.dish d on d_o.id_dish = d.id where dos.order_status = 'DELIVERED' " +
+                             "group by id_dish, d.name, d.price order by quantity_sold desc, d.price desc")) {
+            // statement.setLong(1, top);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     DishSold dishSold = dishSoldMapper.apply(resultSet);

@@ -2,16 +2,11 @@ package org.dd_lgp.com.tutospring.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.dd_lgp.com.tutospring.dao.mapper.DishSoldMapper;
 import org.dd_lgp.com.tutospring.dao.operations.DishCrudOperations;
 import org.dd_lgp.com.tutospring.endpoint.mapper.DishRestMapper;
 import org.dd_lgp.com.tutospring.endpoint.mapper.DishSoldRestMapper;
-import org.dd_lgp.com.tutospring.endpoint.rest.DishRest;
 import org.dd_lgp.com.tutospring.endpoint.rest.DishSoldRest;
-import org.dd_lgp.com.tutospring.model.CreateDishIngredient;
-import org.dd_lgp.com.tutospring.model.Dish;
-import org.dd_lgp.com.tutospring.model.DishIngredient;
-import org.dd_lgp.com.tutospring.model.DishSold;
+import org.dd_lgp.com.tutospring.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,8 +38,8 @@ public class DishService {
         return ResponseEntity.ok().body(dish);
     }
 
-    public ResponseEntity<Object> getBestSales(Long x) {
-        List<DishSold> dishSolds = dishCrudOperations.getBestSales(x);
+    public ResponseEntity<Object> getSales() {
+        List<DishSold> dishSolds = dishCrudOperations.getSales();
         List<DishSoldRest> dishSoldRests = dishSolds.stream().map(dishSoldRestMapper::toRest).toList();
 
         return ResponseEntity.ok().body(dishSoldRests);

@@ -7,13 +7,13 @@ import org.dd_lgp.com.tutospring.dao.PostgresNextReference;
 import org.dd_lgp.com.tutospring.dao.mapper.OrderMapper;
 import org.dd_lgp.com.tutospring.model.*;
 import org.dd_lgp.com.tutospring.service.exception.ServerException;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Repository
@@ -178,10 +178,12 @@ public class OrderCrudOperations implements CrudOperations<Order> {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            try (ResultSet resultSet = statement.executeQuery()) {}
+            try (ResultSet resultSet = statement.executeQuery()) {
+            }
             return orders.getFirst();
         }
     }
+
 
     private List<OrderStatus> orderStatuses() {
         List<OrderStatus> orderStatuses = new ArrayList<>();

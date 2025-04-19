@@ -13,4 +13,24 @@ public class DishIngredient {
     private Ingredient ingredient;
     private Double requiredQuantity;
     private Unit unit;
+
+    public DishIngredient setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public DishIngredient setIngredient(Ingredient ingredient) {
+        this.ingredient = ingredient;
+        return this;
+    }
+
+    public DishIngredient setRequiredQuantity(Double requiredQuantity) {
+        this.requiredQuantity = requiredQuantity;
+        return this;
+    }
+
+    public DishIngredient setUnit(Unit unit) {
+        this.unit = unit;
+        return this;
+    }
 }

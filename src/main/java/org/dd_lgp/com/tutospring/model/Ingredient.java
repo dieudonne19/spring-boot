@@ -45,12 +45,10 @@ public class Ingredient {
         return getPrices();
     }
 
-    @JsonIgnore
     public Double getActualPrice() {
         return findActualPrice().orElse(new Price(0.0)).getAmount();
     }
 
-    @JsonIgnore
     public Double getAvailableQuantity() {
         return getAvailableQuantityAt(Instant.now());
     }

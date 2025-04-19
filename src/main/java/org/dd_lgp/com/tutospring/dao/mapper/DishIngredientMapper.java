@@ -17,10 +17,14 @@ public class DishIngredientMapper implements Function<ResultSet, DishIngredient>
     @Override
     @SneakyThrows
     public DishIngredient apply(ResultSet resultSet) {
+
         DishIngredient dishIngredient = new DishIngredient();
-        dishIngredient.setId(resultSet.getLong("id"));
-        dishIngredient.setRequiredQuantity(resultSet.getDouble("required_quantity"));
-        // dishIngredient.setUnit(Unit.valueOf(resultSet.getString("unit")));
+        dishIngredient
+                .setId(resultSet.getLong("id"))
+                .setRequiredQuantity(resultSet.getDouble("required_quantity"));
+        if (resultSet.getString("unit") != null) {
+            dishIngredient.setUnit(Unit.valueOf(resultSet.getString("unit")));
+        }
 
         return dishIngredient;
     }

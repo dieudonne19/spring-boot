@@ -16,10 +16,12 @@ public class DishSoldRest {
     @JsonIgnore
     private Dish dish;
     private Double quantitySold;
+    @JsonIgnore
+    private Double totalAmount;
 
     @JsonProperty("dishIdentifier")
-    public Long getDishIdentifier() {
-        return dish.getId();
+    public long dishId(){
+        return this.dish.getId();
     }
 
     @JsonProperty("dishName")

@@ -24,8 +24,8 @@ public class DishRestController {
         return service.insertDishIngredients(id, dishIngredients);
     }
 
-    @GetMapping("/bestSales")
-    public Object getBestSales(@RequestParam(name = "x") Long x) {
-        return service.getBestSales(x);
+    @GetMapping("/sales")
+    public Object getSales() {
+        return service.getSales();
     }
 }

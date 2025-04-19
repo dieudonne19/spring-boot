@@ -20,6 +20,7 @@ public class DishSoldMapper implements Function<ResultSet, DishSold> {
         DishSold dishSold = new DishSold();
 
         dishSold.setQuantitySold(resultSet.getDouble("quantity_sold"));
+        dishSold.setTotalAmount(resultSet.getDouble("total_amount"));
         return dishSold;
     }
 }

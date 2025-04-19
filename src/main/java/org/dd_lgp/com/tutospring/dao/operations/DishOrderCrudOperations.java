@@ -6,9 +6,11 @@ import org.dd_lgp.com.tutospring.dao.DataSource;
 import org.dd_lgp.com.tutospring.dao.PostgresNextReference;
 import org.dd_lgp.com.tutospring.dao.mapper.DishOrderMapper;
 import org.dd_lgp.com.tutospring.model.*;
+import org.dd_lgp.com.tutospring.service.exception.ServerException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class DishOrderCrudOperations implements CrudOperations<DishOrder> {
     private final DishOrderMapper dishOrderMapper;
     private final PostgresNextReference postgresNextReference = new PostgresNextReference();
     private final DishOrderStatusOperations dishOrderStatusOperations;
+    private final OrderStatusOperations orderStatusOperations;
 
     @Override
     public List<DishOrder> getAll(int page, int size) {
@@ -52,6 +55,42 @@ public class DishOrderCrudOperations implements CrudOperations<DishOrder> {
     }
 
     // SELECT d_o.id_dish as dish_identifier, d.name, sum(d_o.dish_quantity) as quantity_sold FROM dish_order d_o join public.dish_order_status dos on d_o.id = dos.dish_order_id join public.dish d on d_o.id_dish = d.id where dos.order_status = 'DELIVERED' group by id_dish, d.name order by quantity_sold desc;
+
+    @SneakyThrows
+    public List<DishOrder> modifyAll(List<DishOrder> dishOrderToSave) {
+        List<DishOrder> dishOrders = new ArrayList<>();
+        try (
+                Connection connection = dataSource.getConnection()
+        ) {
+            dishOrderToSave.forEach(dishOrder -> {
+                try (
+                        PreparedStatement statement = connection.prepareStatement("INSERT INTO dish_order(id, order_id, dish_id, quantity) VALUES (?,?,?,?) ON CONFLICT (id) DO UPDATE SET quantity=excluded.quantity RETURNING id,quantity,order_id,dish_id")
+                ) {
+                    long id = dishOrder.getId() == null ? postgresNextReference.nextID("dish_order", connection) : dishOrder.getId();
+
+                    statement.setLong(1, id);
+                    statement.setLong(2, dishOrder.getOrder().getId());
+                    statement.setLong(3, dishOrder.getDish().getId());
+                    statement.setLong(4, dishOrder.getDishQuantity());
+                    OrderStatus created = new OrderStatus();
+                    created.setOrderProcessStatus(OrderProcessStatus.CREATED);
+                    created.setDatetime(LocalDateTime.now());
+                    try (ResultSet rs = statement.executeQuery()) {
+                        if (rs.next()) {
+                            dishOrders.add(dishOrderMapper.apply(rs));
+                        }
+                        orderStatusOperations.saveAll(dishOrder.getOrder().getId(), List.of(created));
+                    } catch (SQLException e) {
+                        throw new ServerException(e);
+                    }
+
+                } catch (SQLException e) {
+                    throw new ServerException(e);
+                }
+            });
+        }
+        return dishOrders;
+    }
 
     @Override
     @SneakyThrows
